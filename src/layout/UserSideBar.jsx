@@ -9,6 +9,7 @@ import {
   DollarSign,
   FileText,
   StickyNote,
+  LogOut
 } from "lucide-react";
 
 function Sidebar() {
@@ -21,6 +22,7 @@ function Sidebar() {
     { name: "Salary", icon: DollarSign, path: "/user/salary" },
     { name: "Expense", icon: FileText, path: "/user/expense" },
     { name: "Memo", icon: StickyNote, path: "/user/memo" },
+    { name: "Logout", icon: LogOut, path: "/" },
   ];
 
   return (

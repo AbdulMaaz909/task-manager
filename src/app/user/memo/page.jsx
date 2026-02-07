@@ -1,4 +1,4 @@
-import ExpensePage from "@/components/User/Expense/Expense";
+import Memo from "@/components/User/Memo/Memo";
 import Sidebar from "@/layout/UserSideBar";
 import React from "react";
 
@@ -6,8 +6,11 @@ const page = () => {
   return (
     <div className="flex">
       <Sidebar />
-      <ExpensePage />
+      <div className="flex-1">
+        <Memo />
+      </div>
     </div>
   );
 };
+
 export default page;

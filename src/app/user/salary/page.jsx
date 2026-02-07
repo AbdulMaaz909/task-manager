@@ -1,13 +1,13 @@
-import SalaryPage from '@/components/User/Salary/page';
-import Sidebar from '@/layout/SideBar';
-import React from 'react'
+import SalaryPage from "@/components/User/Salary/page";
+import Sidebar from "@/layout/UserSideBar";
+import React from "react";
 
 const page = () => {
   return (
-    <div className='flex'>
-        <Sidebar/>
-        <SalaryPage/>
+    <div className="flex">
+      <Sidebar />
+      <SalaryPage />
     </div>
-  )
-}
+  );
+};
 export default page;
