@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { FcApproval } from "react-icons/fc";
 import {
   Menu,
   LayoutDashboard,
@@ -41,6 +42,11 @@ function AdminSidebar() {
       name: "ViewExpenses",
       icon: FileText,
       path: "/admin/expenses",
+    },
+    {
+      name:"ViewApprolvals",
+      icon:FcApproval,
+      path:"/admin/viewapprolvals",
     },
     {
       name: "AddSalary",

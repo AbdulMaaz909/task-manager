@@ -20,6 +20,7 @@ function Sidebar() {
     { name: "Add Timesheet", icon: Clock, path: "/user/timesheet" },
     { name: "Leave", icon: Calendar, path: "/user/leave" },
     { name: "Salary", icon: DollarSign, path: "/user/salary" },
+    { name: "RequestAprovals", icon: Home, path: "/user/requestaprovals" },
     { name: "Expense", icon: FileText, path: "/user/expense" },
     { name: "Memo", icon: StickyNote, path: "/user/memo" },
     { name: "Logout", icon: LogOut, path: "/" },
