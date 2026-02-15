@@ -74,5 +74,28 @@
 // }
 
 
+function decreament (){
+    let initialValue = 5
+    const increament = () => {
+        let output = initialValue + 1;
+        console.log(output)
+    }
+    increament();
+
+    const decreament = () => {
+        let output = initialValue - 1
+        console.log(output);
+    }
+    decreament();
+    const reset = () => {
+        let output = initialValue
+        console.log(output);
+    }
+    reset();
+}   
+
+decreament();
+
+
 
 

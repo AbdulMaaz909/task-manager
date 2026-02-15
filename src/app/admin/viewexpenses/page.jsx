@@ -1,12 +1,12 @@
 import React from 'react'
-import ViewApprolvals from '@/components/Admin/ViewApprolvals/ViewApprolvals'
 import AdminSidebar from '@/layout/AdminSideBar'
+import ViewExpenses from '@/components/Admin/ViewExpenses/ViewExpenses'
 
 const page = () => {
   return (
     <div className='flex'>
         <AdminSidebar/>
-        <ViewApprolvals/>
+        <ViewExpenses/>
     </div>
   )
 }

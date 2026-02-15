@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FcApproval } from "react-icons/fc";
 import {
   Menu,
@@ -14,7 +15,13 @@ import {
   LogOut
 } from "lucide-react";
 
+
 function AdminSidebar() {
+  const router = useRouter();
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    router.push("/");
+  }
   const [open, setOpen] = useState(true);
 
   const menus = [
@@ -29,19 +36,14 @@ function AdminSidebar() {
       path: "/admin/users",
     },
     {
-      name: "Approvals",
-      icon: UserCheck,
-      path: "/admin/approvals",
-    },
-    {
       name: "ViewTimesheets",
       icon: CalendarCheck,
-      path: "/admin/timesheets",
+      path: "/admin/viewtimesheet",
     },
     {
       name: "ViewExpenses",
       icon: FileText,
-      path: "/admin/expenses",
+      path: "/admin/viewexpenses",
     },
     {
       name:"ViewApprolvals",
@@ -51,12 +53,12 @@ function AdminSidebar() {
     {
       name: "AddSalary",
       icon: DollarSign,
-      path: "/admin/salary",
+      path: "/admin/addsalary",
     },
     {
       name: "Settings",
       icon: Settings,
-      path: "/admin/settings",
+      path: "/admin/setting",
     },
     {
       name: "Logout",
@@ -85,17 +87,30 @@ function AdminSidebar() {
       {/* Menu Items */}
       <div className="mt-6 flex-1">
         {menus.map((menu, i) => (
-          <Link
-            href={menu.path}
-            key={i}
-            className="flex items-center gap-3 p-3 hover:bg-gray-700 cursor-pointer transition"
-          >
-            <menu.icon size={24} />
-            <span className={`${!open && "hidden"} text-lg`}>
-              {menu.name}
-            </span>
-          </Link>
-        ))}
+  menu.name === "Logout" ? (
+    <div
+      key={i}
+      onClick={handleLogout}
+      className="flex items-center gap-3 p-3 hover:bg-gray-700 cursor-pointer transition"
+    >
+      <menu.icon size={24} />
+      <span className={`${!open && "hidden"} text-lg`}>
+        {menu.name}
+      </span>
+    </div>
+  ) : (
+    <Link
+      href={menu.path}
+      key={i}
+      className="flex items-center gap-3 p-3 hover:bg-gray-700 cursor-pointer transition"
+    >
+      <menu.icon size={24} />
+      <span className={`${!open && "hidden"} text-lg`}>
+        {menu.name}
+      </span>
+    </Link>
+  )
+))}
       </div>
     </div>
   );

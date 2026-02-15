@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Menu,
   Home,
@@ -14,6 +15,12 @@ import {
 
 function Sidebar() {
   const [open, setOpen] = useState(true);
+  const router = useRouter();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    router.push('/');
+  }
 
   const menus = [
     { name: "Dashboard", icon: Home, path: "/user/userdashboard" },
@@ -46,17 +53,31 @@ function Sidebar() {
       {/* Menu Items */}
       <div className="mt-6 flex-1">
         {menus.map((menu, i) => (
-          <Link
-            href={menu.path}
-            key={i}
-            className="flex items-center gap-3 p-3 hover:bg-purple-600 cursor-pointer"
-          >
-            <menu.icon size={25} />
-            <span className={`${!open && "hidden"} duration-200 text-xl`}>
-              {menu.name}
-            </span>
-          </Link>
-        ))}
+  menu.name === "Logout" ? (
+    <div
+      key={i}
+      onClick={handleLogout}
+      className="flex items-center gap-3 p-3 hover:bg-gray-700 cursor-pointer transition"
+    >
+      <menu.icon size={24} />
+      <span className={`${!open && "hidden"} text-lg`}>
+        {menu.name}
+      </span>
+    </div>
+  ) : (
+    <Link
+      href={menu.path}
+      key={i}
+      className="flex items-center gap-3 p-3 hover:bg-gray-700 cursor-pointer transition"
+    >
+      <menu.icon size={24} />
+      <span className={`${!open && "hidden"} text-lg`}>
+        {menu.name}
+      </span>
+    </Link>
+  )
+))}
+
       </div>
     </div>
   );
