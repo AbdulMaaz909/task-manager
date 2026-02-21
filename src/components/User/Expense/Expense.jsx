@@ -1,7 +1,9 @@
 "use client";
+import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 
 export default function ExpensePage() {
+  const baseUrl = 'http://localhost:5000/api';///createexpense
   const [items, setItems] = useState([]);
   const [desc, setDesc] = useState("");
   const [amount, setAmount] = useState("");
@@ -13,6 +15,7 @@ export default function ExpensePage() {
     setItems(saved);
   }, []);
 
+
   // Save expenses (skip first render)
   useEffect(() => {
     if (isFirstRender.current) {
@@ -22,20 +25,41 @@ export default function ExpensePage() {
     localStorage.setItem("expenses", JSON.stringify(items));
   }, [items]);
 
-  const addExpense = () => {
+  const addExpense = async () => {
     if (!desc.trim() || !amount) return;
 
-    setItems([
-      ...items,
-      {
-        id: Date.now(),
-        desc,
-        amount: parseFloat(amount),
-      },
-    ]);
+    try {
+      const token = localStorage.getItem('token');
+      console.log(token);
 
-    setDesc("");
-    setAmount("");
+      const res= await axios.post(`${baseUrl}/createexpense`,
+        {
+          date: new Date().toISOString(), // important
+        amount: Number(amount),
+        description: desc,
+        },
+        {
+          headers:{
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      console.log("Saved in DB",res.data);
+
+      setItems([
+        ...items,
+        {
+          id:res.data.data._id,
+          desc,
+          amount: parseFloat(amount),
+        }
+      ]);
+      setDesc("");
+      setAmount("");
+    } catch (error) {
+      console.log(error.response?.data || error.message);
+      alert("Expense didn't save!");
+    }
   };
 
   const total = items.reduce((sum, item) => sum + item.amount, 0);

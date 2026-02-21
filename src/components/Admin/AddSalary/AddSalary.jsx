@@ -1,14 +1,20 @@
 'use client'
-import React, { useState } from 'react'
+import axios from 'axios';
+
+import React, { useState,useEffect } from 'react'
+import { ToastContainer,toast } from 'react-toastify';
 
 const AddSalary = () => {
+  const baseUrl = 'http://localhost:5000/api'
   const [formData, setFormData] = useState({
     employee: "",
+    role:"",
     month: "",
     basic: "",
     bonus: "",
     deduction: ""
   });
+  const [users, setUsers] = useState([]);
 
   const handleChange = (e) => {
     setFormData({
@@ -19,12 +25,62 @@ const AddSalary = () => {
   const netSalary =
     (Number(formData.basic) + Number(formData.bonus) - Number(formData.deduction));
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Salary Added Successfully!");
-    console.log(formData);
+    try {
+      const token = localStorage.getItem('token');
+
+      const monthName = new Date(formData.month).toLocaleString("default",{
+        month:"long",
+      })
+
+      const payload = {
+        user: formData.employee,  // must be user _id
+        role:formData.role,
+      month: monthName,
+      salary: Number(formData.basic),
+      bonus: Number(formData.bonus) || 0,
+      deduction: Number(formData.deduction) || 0,
+      }
+
+      const res = await axios.post(`${baseUrl}/createsalary`,
+        payload,
+        {
+headers:{
+  Authorization: `Bearer ${token}`, 
+},
+        }
+      );
+
+      toast.success("Salary Added Successfully!");
+      console.log(res.data);
+    } catch (error) {
+      console.log(error.response?.data || error.message);
+      toast.error(error.response?.data?.message || "Error creating salary")
+    }
 
   }
+
+  useEffect(()=>{
+    const fetchUser = async () =>{
+      try {
+        const token = localStorage.getItem('token');
+
+      const res = await axios.get(`${baseUrl}/auth/users`,{
+        headers:{
+          Authorization:`Bearer ${token}`
+        }
+      }
+      );
+      setUsers(res.data);
+      } catch (error) {
+        toast.message("Error fetching users", error)
+      }
+    }
+    fetchUser();
+  },[])
+
+
   return (
     <div className="min-h-screen bg-gray-100 p-6 w-full">
 
@@ -48,8 +104,9 @@ const AddSalary = () => {
               required
             >
               <option value="">-- Select Employee --</option>
-              <option value="Rahul Sharma">Rahul Sharma</option>
-              <option value="Ayesha Khan">Ayesha Khan</option>
+              {users.map((user)=>(
+                <option key={user._id} value={user._id}>{user.name}</option>
+              ))}
             </select>
           </div>
 
@@ -67,6 +124,28 @@ const AddSalary = () => {
               required
             />
           </div>
+
+          
+<div>
+            <label className="block text-gray-700 font-medium mb-1">
+              Select Role
+            </label>
+            <select
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              className="w-full border px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400"
+              required
+            >
+              <option value="">-- Select Role --</option>
+              <option value="Frontend developer">Frontend developer</option>
+              <option value="Backend developer">Backend developer</option>
+              <option value="Full Stack developer">Full Stack developer</option>
+              <option value="MERN Stack developer">MERN Stack developer</option>
+
+            </select>
+          </div>
+          
 
           {/* Salary Fields */}
           <div className="grid md:grid-cols-3 gap-4">
@@ -128,6 +207,7 @@ const AddSalary = () => {
 
         </form>
       </div>
+      <ToastContainer position="top-right" autoClose={1200} />
     </div>
   )
 }

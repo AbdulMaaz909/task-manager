@@ -1,13 +1,33 @@
 "use client";
-import React from 'react'
+import axios from 'axios';
+import React, { useEffect, useState } from 'react'
 
 const Users = () => {
-  const users = [
-    { id: 1, name: "Abdul Maaz", email: "abdul@gmail.com", role: "User" },
-    { id: 2, name: "Rahul Sharma", email: "rahul@gmail.com", role: "User" },
-    { id: 3, name: "Ayesha Khan", email: "ayesha@gmail.com", role: "User" },
-    { id: 4, name: "Admin One", email: "admin@gmail.com", role: "Admin" },
-  ];
+  const baseUrl = 'http://localhost:5000/api/auth';
+  const [user,setuser] =useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(()=>{
+    const fetchUsers = async () => {
+      const token = localStorage.getItem('token');
+
+      try {
+        const res = await axios.get(`${baseUrl}/users`,{
+          headers:{
+            Authorization:`Bearer ${token}`
+          }
+        });
+        console.log(Users,res.data);
+        
+        setuser(res.data);
+        setLoading(false);
+      } catch (error) {
+        console.log("error while getting users",error.message?.data || error.message);
+        setLoading(false);
+      }
+    }
+    fetchUsers();
+  },[]);
 
   return (
     <div className="min-h-screen w-full bg-gray-100 p-6">
@@ -17,7 +37,7 @@ const Users = () => {
           Users Management
         </h1>
         <p className="text-sm text-gray-500">
-          Total Users: <span className="font-medium">{users.length}</span>
+          Total Users: <span className="font-medium">{user.length}</span>
         </p>
       </div>
 
@@ -26,27 +46,20 @@ const Users = () => {
         <div className="bg-white rounded-lg shadow p-4">
           <p className="text-sm text-gray-500">Total Users</p>
           <h2 className="text-2xl font-bold text-gray-800">
-            {users.length}
+            {user.length}
           </h2>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-4">
-          <p className="text-sm text-gray-500">Admins</p>
-          <h2 className="text-2xl font-bold text-gray-800">
-            {users.filter((u) => u.role === "Admin").length}
-          </h2>
-        </div>
 
-        <div className="bg-white rounded-lg shadow p-4">
-          <p className="text-sm text-gray-500">Normal Users</p>
-          <h2 className="text-2xl font-bold text-gray-800">
-            {users.filter((u) => u.role === "User").length}
-          </h2>
-        </div>
       </div>
 
       {/* Users Table */}
+      
       <div className="bg-white rounded-lg shadow overflow-x-auto">
+        {loading ? ( 
+          <p className='p-6'>Loading....</p> 
+        ):
+          (
         <table className="w-full text-sm">
           <thead className="bg-gray-200 text-gray-700">
             <tr>
@@ -57,9 +70,9 @@ const Users = () => {
             </tr>
           </thead>
           <tbody>
-            {users.map((user, index) => (
+            {user.map((user, index) => (
               <tr
-                key={user.id}
+                key={user._id}
                 className="border-b last:border-none hover:bg-gray-50"
               >
                 <td className="px-4 py-3">{index + 1}</td>
@@ -80,6 +93,7 @@ const Users = () => {
             ))}
           </tbody>
         </table>
+        )}
       </div>
     </div>
   );

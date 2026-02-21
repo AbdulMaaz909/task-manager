@@ -1,42 +1,43 @@
 'use client'
-import React, { useState } from 'react'
+import axios from 'axios';
+import React, { useEffect, useState } from 'react'
 
 const ViewExpenses = () => {
-  const [search, setSearch] = useState("")
+  const baseUrl = 'http://localhost:5000/api';
+  const [expense, setExpense] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
-  const expenses  = [
-    {
-      id: 1,
-      employee: "Rahul Sharma",
-      date: "2026-02-08",
-      category: "Travel",
-      amount: 1200,
-      description: "Client meeting travel expense",
-      status: "Approved",
-    },
-    {
-      id: 2,
-      employee: "Ayesha Khan",
-      date: "2026-02-07",
-      category: "Food",
-      amount: 800,
-      description: "Team lunch expense",
-      status: "Pending",
-    },
-    {
-      id: 3,
-      employee: "Aman Verma",
-      date: "2026-02-06",
-      category: "Office Supplies",
-      amount: 1500,
-      description: "Purchased stationery items",
-      status: "Rejected",
-    },
-  ];
+  useEffect(() =>{
+    const fetchData = async () => {
+      const token = localStorage.getItem('token');
 
-  const filteredExpenses = expenses.filter((item)=>(
-    item.employee.toLowerCase().includes(search.toLowerCase())
-  ))
+      try {
+        const res = await axios.get(`${baseUrl}/getallexpense`,
+        {
+          headers:{
+            Authorization:`Bearer ${token}`,
+          }
+        });
+
+      console.log("Expense",res.data);
+      setExpense(res.data);
+      setLoading(false);
+      } catch (error) {
+        console.log("Error while getting expense data",error.message?.data || error.message);
+        setLoading(false)
+      }
+    };
+    fetchData()
+  },[]);
+
+  const filteredExpenses = expense.filter((item) =>
+  item.user?.name?.toLowerCase().includes(search.toLowerCase())
+);
+
+  const formatDate = (date) =>{
+    return new Date(date).toLocaleDateString();
+  } 
 
   const getStatusColor = (status) => {
     if(status === "Approved") return "text-green-600 bg-green-100";
@@ -66,21 +67,20 @@ const ViewExpenses = () => {
           className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
 
-        <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
-          Filter
-        </button>
       </div>
-
+    
       {/* Expense Table */}
       <div className="bg-white rounded-xl shadow-md overflow-x-auto">
+        {loading ? (
+          <p className="p-6">Loading expenses...</p>
+        ): (
         <table className="w-full text-left">
           <thead className="bg-gray-200 text-gray-700 uppercase text-sm">
             <tr>
               <th className="p-4">Employee</th>
               <th className="p-4">Date</th>
-              <th className="p-4">Category</th>
               <th className="p-4">Amount (₹)</th>
-              <th className="p-4">Description</th>
+              <th className="p-4">Descriptioncls</th>
               <th className="p-4">Status</th>
             </tr>
           </thead>
@@ -88,14 +88,13 @@ const ViewExpenses = () => {
           <tbody>
             {filteredExpenses.map((item) => (
               <tr
-                key={item.id}
+                key={item._id}
                 className="border-b hover:bg-gray-50 transition"
               >
                 <td className="p-4 font-medium text-gray-800">
-                  {item.employee}
+                  {item.user?.name}
                 </td>
-                <td className="p-4">{item.date}</td>
-                <td className="p-4">{item.category}</td>
+                <td className="p-4">{formatDate(item.date)}</td>
                 <td className="p-4 font-semibold">₹{item.amount}</td>
                 <td className="p-4">{item.description}</td>
                 <td className="p-4">
@@ -111,6 +110,7 @@ const ViewExpenses = () => {
             ))}
           </tbody>
         </table>
+        )}
       </div>
     </div>
   )

@@ -12,8 +12,6 @@ function Login() {
     password: "",
     
   });
-//   localStorage.setItem("token", response.data.token);
-// localStorage.setItem("name", res.data.name);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -119,7 +117,7 @@ function Login() {
           </div>
         </div>
       </div>
-      <ToastContainer position="top-right" autoClose={1200} />
+      <ToastContainer position="top-right" autoClose={1800} />
     </>
   );
 }

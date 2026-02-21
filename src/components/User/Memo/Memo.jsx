@@ -1,43 +1,85 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 const Memo = () => {
+  const baseUrl = "http://localhost:5000/api";
+
   const [memo, setMemo] = useState("");
   const [memos, setMemos] = useState([]);
-  const isFirstRender = useRef(true);
 
-  // Load memos once
+  // ✅ Fetch memos from backend
   useEffect(() => {
-    const savedMemos = JSON.parse(localStorage.getItem("memos")) || [];
-    setMemos(savedMemos);
+    const fetchMemos = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await axios.get(`${baseUrl}/getmemo`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setMemos(res.data.data);
+      } catch (error) {
+        console.log("Error fetching memos", error);
+      }
+    };
+
+    fetchMemos();
   }, []);
 
-  // Save memos (skip first render)
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    localStorage.setItem("memos", JSON.stringify(memos));
-  }, [memos]);
-
-  const saveMemo = () => {
+  // ✅ Create memo
+  const saveMemo = async () => {
     if (memo.trim() === "") return;
-    setMemos([memo, ...memos]);
-    setMemo("");
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await axios.post(
+        `${baseUrl}/creatememo`,
+        {
+          note: memo,
+          date: new Date(),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Add new memo on top
+      setMemos([res.data.data, ...memos]);
+      setMemo("");
+
+    } catch (error) {
+      console.log("Error creating memo", error);
+    }
   };
 
-  const deleteMemo = (index) => {
-    setMemos(memos.filter((_, i) => i !== index));
+  // ✅ Delete memo
+  const deleteMemo = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      await axios.delete(`${baseUrl}/deletememo/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setMemos(memos.filter((item) => item._id !== id));
+
+    } catch (error) {
+      console.log("Error deleting memo", error);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-lg shadow-md p-5">
         <h1 className="text-xl font-semibold text-gray-800 mb-1">My Memo</h1>
-        <p className="text-sm text-gray-500 mb-4">
-          Write quick notes for your tasks
-        </p>
 
         <textarea
           value={memo}
@@ -65,14 +107,14 @@ const Memo = () => {
           )}
 
           <div className="space-y-3">
-            {memos.map((item, index) => (
+            {memos.map((item) => (
               <div
-                key={index}
+                key={item._id}
                 className="flex justify-between items-start p-3 border rounded-lg text-sm text-gray-700 bg-gray-50"
               >
-                <span>{item}</span>
+                <span>{item.note}</span>
                 <button
-                  onClick={() => deleteMemo(index)}
+                  onClick={() => deleteMemo(item._id)}
                   className="text-red-500 text-xs ml-2 hover:underline"
                 >
                   Delete

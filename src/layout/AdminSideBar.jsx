@@ -56,9 +56,9 @@ function AdminSidebar() {
       path: "/admin/addsalary",
     },
     {
-      name: "Settings",
-      icon: Settings,
-      path: "/admin/setting",
+      name: "ViewMemo",
+      icon: DollarSign,
+      path: "/admin/viewmemo",
     },
     {
       name: "Logout",

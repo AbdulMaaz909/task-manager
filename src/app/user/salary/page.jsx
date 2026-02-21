@@ -1,4 +1,4 @@
-import SalaryPage from "@/components/User/Salary/page";
+import SalaryPage from "@/components/User/Salary/Salary";
 import Sidebar from "@/layout/UserSideBar";
 import React from "react";
 
