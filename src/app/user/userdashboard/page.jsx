@@ -9,7 +9,7 @@ const page = () => {
     <div className="flex">
       <Sidebar />
       <UserDashboard />
-      <Chatbot />
+      {/* <Chatbot /> */}
     </div>
   );
 };

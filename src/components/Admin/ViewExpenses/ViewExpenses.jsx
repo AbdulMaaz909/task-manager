@@ -7,43 +7,74 @@ const ViewExpenses = () => {
   const [expense, setExpense] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [activeId, setActiveId] = useState(null);
 
-  useEffect(() =>{
+  useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem('token');
 
       try {
         const res = await axios.get(`${baseUrl}/getallexpense`,
-        {
-          headers:{
-            Authorization:`Bearer ${token}`,
-          }
-        });
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            }
+          });
 
-      console.log("Expense",res.data);
-      setExpense(res.data);
-      setLoading(false);
+        // console.log("Expense",res.data);
+        setExpense(res.data);
+        setLoading(false);
       } catch (error) {
-        console.log("Error while getting expense data",error.message?.data || error.message);
+        console.log("Error while getting expense data", error.message?.data || error.message);
         setLoading(false)
       }
     };
     fetchData()
-  },[]);
+  }, []);
 
   const filteredExpenses = expense.filter((item) =>
-  item.user?.name?.toLowerCase().includes(search.toLowerCase())
-);
+    item.user?.name?.toLowerCase().includes(search.toLowerCase())
+  );
 
-  const formatDate = (date) =>{
+  const formatDate = (date) => {
     return new Date(date).toLocaleDateString();
-  } 
+  }
 
   const getStatusColor = (status) => {
-    if(status === "Approved") return "text-green-600 bg-green-100";
-    if(status === "Pending") return "text-yellow-600 bg-yellow-100";
-    if(status === "Rejected") return "text-red-600 bg-red-100";
-  }
+    const s = status?.trim().toLowerCase(); // 🔥 important
+
+    if (s === "approved") return "text-green-600 bg-green-100";
+    if (s === "pending") return "text-yellow-600 bg-yellow-100";
+    if (s === "rejected") return "text-red-600 bg-red-100";
+
+    return "text-gray-600 bg-gray-100"; // fallback
+  };
+
+  const updateStatus = async (id, newStatus) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      await axios.put(`${baseUrl}/updateexpense/${id}`,
+        { status: newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // update UI
+      setExpense((prev) =>
+        prev.map((item) =>
+          item._id === id ? { ...item, status: newStatus } : item
+        )
+      );
+
+      setActiveId(null); // close dropdown
+    } catch (err) {
+      console.log(err);
+    }
+  };
   return (
     <div className="min-h-screen bg-gray-100 p-6 w-full">
 
@@ -68,48 +99,69 @@ const ViewExpenses = () => {
         />
 
       </div>
-    
+
       {/* Expense Table */}
       <div className="bg-white rounded-xl shadow-md overflow-x-auto">
         {loading ? (
           <p className="p-6">Loading expenses...</p>
-        ): (
-        <table className="w-full text-left">
-          <thead className="bg-gray-200 text-gray-700 uppercase text-sm">
-            <tr>
-              <th className="p-4">Employee</th>
-              <th className="p-4">Date</th>
-              <th className="p-4">Amount (₹)</th>
-              <th className="p-4">Descriptioncls</th>
-              <th className="p-4">Status</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {filteredExpenses.map((item) => (
-              <tr
-                key={item._id}
-                className="border-b hover:bg-gray-50 transition"
-              >
-                <td className="p-4 font-medium text-gray-800">
-                  {item.user?.name}
-                </td>
-                <td className="p-4">{formatDate(item.date)}</td>
-                <td className="p-4 font-semibold">₹{item.amount}</td>
-                <td className="p-4">{item.description}</td>
-                <td className="p-4">
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                      item.status
-                    )}`}
-                  >
-                    {item.status}
-                  </span>
-                </td>
+        ) : (
+          <table className="w-full text-left">
+            <thead className="bg-gray-200 text-gray-700 uppercase text-sm">
+              <tr>
+                <th className="p-4">Employee</th>
+                <th className="p-4">Date</th>
+                <th className="p-4">Amount (₹)</th>
+                <th className="p-4">Description</th>
+                <th className="p-4">Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {filteredExpenses.map((item) => {
+
+                return (
+                  <tr
+                    key={item._id}
+                    className="border-b hover:bg-gray-50 transition"
+                  >
+                    <td className="p-4 font-medium text-gray-800">
+                      {item.user?.name}
+                    </td>
+                    <td className="p-4">{formatDate(item.date)}</td>
+                    <td className="p-4 font-semibold">₹{item.amount}</td>
+                    <td className="p-4">{item.description}</td>
+                    <td className="p-4 relative">
+                      <span
+                        onClick={() => setActiveId(item._id)}
+                        className={`px-3 py-1 rounded-full text-sm font-medium cursor-pointer ${getStatusColor(item.status)}`}
+                      >
+                        {item.status}
+                      </span>
+
+                      {/* Dropdown */}
+                      {activeId === item._id && (
+                        <div className="absolute bg-white shadow-md rounded mt-2">
+                          <p
+                            onClick={() => updateStatus(item._id, "Approved")}
+                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                          >
+                            Approved
+                          </p>
+                          <p
+                            onClick={() => updateStatus(item._id, "Rejected")}
+                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                          >
+                            Rejected
+                          </p>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+
+          </table>
         )}
       </div>
     </div>

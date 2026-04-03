@@ -7,7 +7,7 @@ const page = () => {
   return (
     <div>
       <Login/>
-      <Chatbot/>
+      {/* <Chatbot/> */}
     </div>
   )
 }
